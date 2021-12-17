@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +23,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TextView text = (TextView) findViewById(R.id.titolAsteroides);
+        /*TextView text = (TextView) findViewById(R.id.titolAsteroides);
         Animation animacio = AnimationUtils.loadAnimation(this,
-                R.anim.gir_amb_zoom);
-        text.startAnimation(animacio);
+                R.anim.apareixer);
+        text.startAnimation(animacio);*/
 
         Button btnPlay = (Button) findViewById(R.id.button);
         Animation botoPlay = AnimationUtils.loadAnimation(this,

@@ -10,6 +10,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebHistoryItem;
 
@@ -25,6 +27,14 @@ public class VistaJoc extends View {
     private Grafic nau; // Gràfic de la nau
     private int girNau; // Angle de gir de la nau
     private float acceleracioNau; // Augment de velocitat
+
+    // //// THREAD I TEMPS //////
+    // Thread encarregat de processar el joc
+    private ThreadJoc thread = new ThreadJoc();
+    // Cada quan volem processar canvis (ms)
+    private static int PERIODE_PROCES = 50;
+    // Quan es va realitzar el darrer procés
+    private long darrerProces = 0;
 
     // Increment estàndar de gir i acceleració
     private static final int PAS_GIR_NAU = 5;
@@ -93,6 +103,102 @@ public class VistaJoc extends View {
         }
         nau = new Grafic(this, drawableNave);
     }
+
+    public boolean onKeyDown(int codiTecla, KeyEvent event) {
+        super.onKeyDown(codiTecla, event);
+        // Processam la pulsación
+        boolean processada = true;
+        switch (codiTecla) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+                acceleracioNau = +PAS_ACCELERACIO_NAU;
+                break;
+            /*case KeyEvent.KEYCODE_DPAD_DOWN:
+                acceleracioNau = -PAS_ACCELERACIO_NAU;
+                break;  */
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                girNau = -PAS_GIR_NAU;
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                girNau = +PAS_GIR_NAU;
+                break;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+                //ActivaMisil();
+                break;
+            default:
+        // Si estem aquí, no hi ha pulsació que ens interessi
+                processada = false;
+                break;
+        }
+        return processada;
+    }
+
+    public boolean onKeyUp(int codiTecla, KeyEvent event) {
+        super.onKeyUp(codiTecla, event);
+        // Processam la pulsació
+        boolean processada = true;
+        switch (codiTecla) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+                acceleracioNau = 0;
+                break;
+            /*case KeyEvent.KEYCODE_DPAD_DOWN:
+                acceleracioNau = -PAS_ACCELERACIO_NAU;
+                break;  */
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                girNau = 0;
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                girNau = 0;
+                break;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+                //ActivaMisil();
+                break;
+            default:
+                // Si estem aquí, no hi ha pulsació que ens interessi
+                processada = false;
+                break;
+        }
+        return processada;
+    }
+
+    class ThreadJoc extends Thread {
+        @Override
+        public void run() {
+            while (true) {
+                actualitzaFisica();
+            }
+        }
+    }
+
+    synchronized protected void actualitzaFisica(){
+        long ara = System.currentTimeMillis();
+        // No fer res fins a final del període
+        if (darrerProces + PERIODE_PROCES > ara){
+            return;
+        }
+        // Per a una execució en temps real calculam retard
+        double retard = (ara - darrerProces) / PERIODE_PROCES;
+        darrerProces = ara;
+        // Actualitzam velocitat i direcció de la nau a partir de
+        // girNau i acceleracioNau
+        nau.setAngle((int) (nau.getAngle() + girNau * retard));
+        double nIncX = nau.getIncX() + acceleracioNau *
+                Math.cos(Math.toRadians(nau.getAngle())) * retard;
+        double nIncY = nau.getIncY() + acceleracioNau *
+                Math.sin(Math.toRadians(nau.getAngle())) * retard;
+        // Actualitzam si el mòdul de la velocitat no excedeix el màxim
+        if (Math.hypot(nIncX,nIncY) <= MAX_VELOCITAT_NAU){
+            nau.setIncX(nIncX);
+            nau.setIncY(nIncY);
+        }
+        // Actualitzam posicions X i Y
+        nau.incrementaPos(retard);
+        for (Grafic asteroide : Asteroides) {
+            asteroide.incrementaPos(retard);
+        }
+    }
+    
     @Override protected void onSizeChanged(int ample, int alt, int ample_anter, int alt_anter) {
         super.onSizeChanged(ample, alt, ample_anter, alt_anter);
     // Un cop coneixem el nostre ample i alt.
@@ -102,8 +208,10 @@ public class VistaJoc extends View {
         }
         nau.setPosX((ample-nau.getAmple())/2);
         nau.setPosY((alt-nau.getAlt())/2);
+        darrerProces = System.currentTimeMillis();
+        thread.start();
     }
-    @Override protected void onDraw(Canvas canvas) {
+    @Override synchronized protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (Grafic asteroide: Asteroides) {
             asteroide.dibuixaGrafic(canvas);

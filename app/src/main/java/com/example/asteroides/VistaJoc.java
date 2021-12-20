@@ -12,6 +12,7 @@ import android.graphics.drawable.shapes.PathShape;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebHistoryItem;
 
@@ -102,6 +103,10 @@ public class VistaJoc extends View {
             Asteroides.add(asteroide);
         }
         nau = new Grafic(this, drawableNave);
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
     }
 
     public boolean onKeyDown(int codiTecla, KeyEvent event) {

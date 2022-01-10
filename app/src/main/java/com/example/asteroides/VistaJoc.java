@@ -105,9 +105,35 @@ public class VistaJoc extends View {
         nau = new Grafic(this, drawableNave);
     }
 
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent (MotionEvent event) {
+        super.onTouchEvent(event);
+        float x = event.getX();
+        float y = event.getY();
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    dispar =true;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    float dx = /*Diferència en les x*/
+                    float dy = /*Diferència en les y*/
+                    if (/*La diferència de les x és més gran que un cert valor i la de les y menor que un cert valor*/){
+                        girNau = /*Girar la nau una certa quantitat proporcional al moviment del dit*/
+                                dispar = false;
+                    } else if (/*La diferència de les y és més gran que un cert valor i la de les x menor que un cert valor){
+                        acceleracioNau = /*Accelerar la nau una certa quantitat proporcional al moviment del dit*/
+                    dispar = false;
+            }
+                    break;
+                case MotionEvent.ACTION_UP:
+                /*Desactivar el gir de la nau*/;
+                if (dispar){
+                    //ActivaMisil();
+                }
+                break;
+            }
+            mX=x; mY=y;
         return true;
-    }
+        }
 
     public boolean onKeyDown(int codiTecla, KeyEvent event) {
         super.onKeyDown(codiTecla, event);

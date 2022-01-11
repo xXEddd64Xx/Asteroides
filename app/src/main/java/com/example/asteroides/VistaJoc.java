@@ -23,7 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VistaJoc extends View {
-// //// ASTEROIDES //////
+    private float mX = 0;
+    private float mY = 0;
+    // //// ASTEROIDES //////
+
     // //// NAU //////
     private Grafic nau; // Gràfic de la nau
     private int girNau; // Angle de gir de la nau
@@ -111,24 +114,25 @@ public class VistaJoc extends View {
         float y = event.getY();
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    dispar =true;
+                    //dispar = true;
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    float dx = /*Diferència en les x*/
-                    float dy = /*Diferència en les y*/
-                    if (/*La diferència de les x és més gran que un cert valor i la de les y menor que un cert valor*/){
-                        girNau = /*Girar la nau una certa quantitat proporcional al moviment del dit*/
-                                dispar = false;
-                    } else if (/*La diferència de les y és més gran que un cert valor i la de les x menor que un cert valor){
-                        acceleracioNau = /*Accelerar la nau una certa quantitat proporcional al moviment del dit*/
-                    dispar = false;
+                    float dx = x - mX;
+                    float dy = mY - y;
+                    if ((dx>dy || (-dx)>dy) && dx!=0){
+                        girNau = (int)dx;
+                                //dispar = false;
+                    } else if (dy>dx && dy>0){
+                        acceleracioNau = (int)(dy*0.5);
+                    //dispar = false;
             }
                     break;
                 case MotionEvent.ACTION_UP:
-                /*Desactivar el gir de la nau*/;
-                if (dispar){
+                girNau = 0;
+                acceleracioNau = 0;
+                /*if (dispar){
                     //ActivaMisil();
-                }
+                }*/
                 break;
             }
             mX=x; mY=y;

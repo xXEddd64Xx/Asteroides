@@ -9,6 +9,10 @@ import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -22,9 +26,10 @@ import androidx.preference.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VistaJoc extends View {
+public class VistaJoc extends View implements SensorEventListener {
     private float mX = 0;
     private float mY = 0;
+    SensorManager mSensorManager;
     // //// ASTEROIDES //////
 
     // //// NAU //////
@@ -89,6 +94,14 @@ public class VistaJoc extends View {
             drawableNave = drawableNau;
             setBackgroundColor(Color.BLACK);
 
+            mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+            List<Sensor> listSensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
+            if (!listSensors.isEmpty()) {
+                Log.i("Dins sensors", "ASAS");
+                Sensor accelerometerSensor = listSensors.get(0);
+                mSensorManager.registerListener(this, accelerometerSensor,
+                        SensorManager.SENSOR_DELAY_GAME);
+            }
         } else {
             setLayerType(View.LAYER_TYPE_HARDWARE, null);
             drawableAsteroide =
@@ -252,5 +265,20 @@ public class VistaJoc extends View {
             asteroide.dibuixaGrafic(canvas);
         }
         nau.dibuixaGrafic(canvas);
+    }
+
+    private boolean hihaValorInicial = false;
+    private float valorInicial=0;
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        float valor = sensorEvent.values[1];
+        if (!hihaValorInicial){
+            valorInicial = valor;
+            hihaValorInicial = true;
+        }
+        girNau=(int) (valor-valorInicial)/3 ;
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
     }
 }

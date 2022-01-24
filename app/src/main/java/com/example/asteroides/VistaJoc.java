@@ -95,17 +95,15 @@ public class VistaJoc extends View implements SensorEventListener {
             setBackgroundColor(Color.BLACK);
 
             mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
-            List<Sensor> listSensors = mSensorManager.getSensorList(Sensor.TYPE_GRAVITY);
+            List<Sensor> listSensors = mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
             if (!listSensors.isEmpty()) {
-                Log.i("Dins sensors", "ASAS");
+                Log.i("Llista sensors", "Entra");
                 Sensor accelerometerSensor = listSensors.get(0);
-                mSensorManager.registerListener(this, accelerometerSensor,
-                        SensorManager.SENSOR_DELAY_GAME);
+                mSensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
             }
         } else {
             setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            drawableAsteroide =
-                    ContextCompat.getDrawable(context, R.drawable.asteroide1);
+            drawableAsteroide = ContextCompat.getDrawable(context, R.drawable.asteroide1);
             drawableNave = context.getResources().getDrawable(R.drawable.nau);
         }
 
@@ -269,8 +267,10 @@ public class VistaJoc extends View implements SensorEventListener {
 
     private boolean hihaValorInicial = false;
     private float valorInicial=0;
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        Log.i("Dins", "esta dins");
         float valor = sensorEvent.values[1];
         if (!hihaValorInicial){
             valorInicial = valor;

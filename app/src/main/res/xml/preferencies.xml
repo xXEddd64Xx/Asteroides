@@ -2,23 +2,34 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="preferencies_principal">
-    <CheckBoxPreference
-        android:key="musica"
-        android:title="Reproducir música"
-        android:summary="Se reprodueix música de fons"/>
-    <ListPreference
-        android:key="grafics"
-        android:title="Tipus de gràfics"
-        android:summary="Escollir la representació de gràfics"
-        android:entries="@array/tipusGrafics"
-        android:entryValues="@array/tipusGraficsValors"
-        android:defaultValue="1"/>
-    <EditTextPreference
-        android:key="fragments"
-        android:title="Número de fragments"
-        android:summary="En quans trossos es divideix un asteroide"
-        android:inputType="number"
-        android:defaultValue="3"/>
+    <PreferenceCategory android:title="General" >
+        <CheckBoxPreference
+            android:key="musica"
+            android:title="Reproducir música"
+            android:summary="Se reprodueix música de fons"/>
+        <ListPreference
+            android:key="grafics"
+            android:title="Tipus de gràfics"
+            android:summary="Escollir la representació de gràfics"
+            android:entries="@array/tipusGrafics"
+            android:entryValues="@array/tipusGraficsValors"
+            android:defaultValue="1"/>
+        <EditTextPreference
+            android:key="fragments"
+            android:title="Número de fragments"
+            android:summary="En quans trossos es divideix un asteroide"
+            android:inputType="number"
+            android:defaultValue="3"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Controls" >
+        <ListPreference
+            android:key="controls"
+            android:title="Tipus de controls"
+            android:summary="Com controlaras la nau?"
+            android:entries="@array/tipusControl"
+            android:entryValues="@array/tipusControlValors"
+            android:defaultValue="1"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="Mode multijugador" >
         <CheckBoxPreference
             android:key="multijugador"

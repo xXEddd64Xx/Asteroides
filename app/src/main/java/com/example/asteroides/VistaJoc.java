@@ -9,6 +9,7 @@ import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
+import android.graphics.drawable.shapes.RectShape;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -30,6 +31,13 @@ public class VistaJoc extends View implements SensorEventListener {
     private float mX = 0;
     private float mY = 0;
     SensorManager mSensorManager;
+
+    // //// MISIL //////
+    private Grafic missil;
+    private static int PAS_VELOCITAT_MISSIL = 12;
+    private boolean missilActiu = false;
+    private int tempsMissil;
+
     // //// ASTEROIDES //////
 
     // //// NAU //////
@@ -54,8 +62,17 @@ public class VistaJoc extends View implements SensorEventListener {
     private int numFragments = 3; // Fragments en que es divideix
     public VistaJoc(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Drawable drawableNave, drawableAsteroide, drawableMisil;
+        Drawable drawableNave, drawableAsteroide, drawableMissil;
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        if (pref.getString("controls", "1").equals("2")) {
+            mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+            List<Sensor> listSensors = mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+            if (!listSensors.isEmpty()) {
+                Sensor accelerometerSensor = listSensors.get(0);
+                mSensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+            }
+        }
+
         if (pref.getString("grafics", "1").equals("0")) {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             Path pathAsteroide = new Path();
@@ -71,12 +88,19 @@ public class VistaJoc extends View implements SensorEventListener {
             pathAsteroide.lineTo((float) 0.0, (float) 0.6);
             pathAsteroide.lineTo((float) 0.0, (float) 0.2);
             pathAsteroide.lineTo((float) 0.3, (float) 0.0);
-            ShapeDrawable dAsteroide = new ShapeDrawable(new
-                    PathShape(pathAsteroide, 1, 1));
+            ShapeDrawable dAsteroide = new ShapeDrawable(new PathShape(pathAsteroide, 1, 1));
             dAsteroide.getPaint().setColor(Color.WHITE);
             dAsteroide.getPaint().setStyle(Paint.Style.STROKE);
             dAsteroide.setIntrinsicWidth(200);
             dAsteroide.setIntrinsicHeight(200);
+
+            // MISSIL //
+            ShapeDrawable dMissil = new ShapeDrawable(new RectShape());
+            dMissil.getPaint().setColor(Color.WHITE);
+            dMissil.getPaint().setStyle(Paint.Style.STROKE);
+            dMissil.setIntrinsicWidth(15);
+            dMissil.setIntrinsicHeight(3);
+            drawableMissil = dMissil;
 
             drawableAsteroide = dAsteroide;
             setBackgroundColor(Color.BLACK);
@@ -93,18 +117,11 @@ public class VistaJoc extends View implements SensorEventListener {
 
             drawableNave = drawableNau;
             setBackgroundColor(Color.BLACK);
-
-            mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
-            List<Sensor> listSensors = mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-            if (!listSensors.isEmpty()) {
-                Log.i("Llista sensors", "Entra");
-                Sensor accelerometerSensor = listSensors.get(0);
-                mSensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
-            }
         } else {
             setLayerType(View.LAYER_TYPE_HARDWARE, null);
             drawableAsteroide = ContextCompat.getDrawable(context, R.drawable.asteroide1);
             drawableNave = context.getResources().getDrawable(R.drawable.nau);
+            drawableMissil = context.getResources().getDrawable(R.drawable.misil1);
         }
 
         Asteroides = new ArrayList<Grafic>();
@@ -125,25 +142,25 @@ public class VistaJoc extends View implements SensorEventListener {
         float y = event.getY();
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    //dispar = true;
+                    disparar = true;
                     break;
                 case MotionEvent.ACTION_MOVE:
                     float dx = x - mX;
                     float dy = mY - y;
                     if ((dx>dy || (-dx)>dy) && dx!=0){
                         girNau = (int)dx;
-                                //dispar = false;
+                                disparar = false;
                     } else if (dy>dx && dy>0){
                         acceleracioNau = (int)(dy*0.5);
-                    //dispar = false;
+                    disparar = false;
             }
                     break;
                 case MotionEvent.ACTION_UP:
                 girNau = 0;
                 acceleracioNau = 0;
-                /*if (dispar){
-                    //ActivaMisil();
-                }*/
+                if (disparar){
+                    ActivaMisil();
+                }
                 break;
             }
             mX=x; mY=y;
@@ -243,6 +260,21 @@ public class VistaJoc extends View implements SensorEventListener {
         for (Grafic asteroide : Asteroides) {
             asteroide.incrementaPos(retard);
         }
+
+        if (missilActiu) {
+            missil.incrementaPos(retard);
+            tempsMissil-=retard;
+            if (tempsMissil < 0) {
+                missilActiu = false;
+            } else {
+                for (int i = 0; i < Asteroides.size(); i++)
+                if (missil.verificaColisio(Asteroides.get(i))) {
+                    destrueixAsteroide(i);
+                    break;
+                }
+            }
+        }
+        
     }
     
     @Override protected void onSizeChanged(int ample, int alt, int ample_anter, int alt_anter) {
@@ -263,6 +295,9 @@ public class VistaJoc extends View implements SensorEventListener {
             asteroide.dibuixaGrafic(canvas);
         }
         nau.dibuixaGrafic(canvas);
+        if (missilActiu) {
+            missil.dibuixaGrafic(canvas);
+        }
     }
 
     private boolean hihaValorInicial = false;
@@ -270,15 +305,34 @@ public class VistaJoc extends View implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        Log.i("Dins", "esta dins");
-        float valor = sensorEvent.values[1];
+        float valorGir = sensorEvent.values[1];
+        float valorAcc = sensorEvent.values[2];
         if (!hihaValorInicial){
-            valorInicial = valor;
+            valorInicial = valorAcc;
             hihaValorInicial = true;
         }
-        girNau=(int) (valor-valorInicial)/3 ;
+        if (!hihaValorInicial){
+            valorInicial = valorGir;
+            hihaValorInicial = true;
+        }
+        girNau=(int) (valorGir-valorInicial)/2 ;
+        acceleracioNau=(int) (valorAcc-valorInicial)/3 ;
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
+    }
+    private void destrueixAsteroide(int i) {
+
+        Asteroides.remove(i);
+        missilActiu = false;
+    }
+    private void ActivaMissil() {
+        missil.setPosX(nau.getPosX());
+        missil.setPosY(nau.getPosY());
+        missil.setAngle(nau.getAngle());
+        missil.setIncX(Math.cos(Math.toRadians(missil.getAngle())) * PAS_VELOCITAT_MISSIL);
+        missil.setIncY(Math.sin(Math.toRadians(missil.getAngle())) * PAS_VELOCITAT_MISSIL);
+        tempsMissil = (int) Math.min(this.getWidth() / Math.abs(missil.getIncX()), this.getHeight() / Math.abs(missil.getIncY())) - 2;
+        missilActiu = true;
     }
 }

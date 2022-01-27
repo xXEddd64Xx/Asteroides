@@ -33,10 +33,10 @@ public class VistaJoc extends View implements SensorEventListener {
     SensorManager mSensorManager;
 
     // //// MISIL //////
-    private Grafic missil;
+    private List<Grafic> Missils;
     private static int PAS_VELOCITAT_MISSIL = 12;
-    private boolean missilActiu = false;
-    private int tempsMissil;
+    /*private boolean missilActiu = false;*/
+    private List<Integer> tempsMissils;
 
     // //// ASTEROIDES //////
 
@@ -134,32 +134,34 @@ public class VistaJoc extends View implements SensorEventListener {
             Asteroides.add(asteroide);
         }
         nau = new Grafic(this, drawableNave);
+        missil = new Grafic(this, drawableMissil);
     }
 
+    boolean dispar = false;
     public boolean onTouchEvent (MotionEvent event) {
         super.onTouchEvent(event);
         float x = event.getX();
         float y = event.getY();
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    disparar = true;
+                    dispar = true;
                     break;
                 case MotionEvent.ACTION_MOVE:
                     float dx = x - mX;
                     float dy = mY - y;
                     if ((dx>dy || (-dx)>dy) && dx!=0){
                         girNau = (int)dx;
-                                disparar = false;
+                                dispar = false;
                     } else if (dy>dx && dy>0){
                         acceleracioNau = (int)(dy*0.5);
-                    disparar = false;
+                    dispar = false;
             }
                     break;
                 case MotionEvent.ACTION_UP:
                 girNau = 0;
                 acceleracioNau = 0;
-                if (disparar){
-                    ActivaMisil();
+                if (dispar){
+                    ActivaMissil();
                 }
                 break;
             }
@@ -186,7 +188,7 @@ public class VistaJoc extends View implements SensorEventListener {
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_ENTER:
-                //ActivaMisil();
+                ActivaMissil();
                 break;
             default:
         // Si estem aquí, no hi ha pulsació que ens interessi
@@ -215,7 +217,7 @@ public class VistaJoc extends View implements SensorEventListener {
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_ENTER:
-                //ActivaMisil();
+                ActivaMissil();
                 break;
             default:
                 // Si estem aquí, no hi ha pulsació que ens interessi
@@ -261,9 +263,10 @@ public class VistaJoc extends View implements SensorEventListener {
             asteroide.incrementaPos(retard);
         }
 
-        if (missilActiu) {
-            missil.incrementaPos(retard);
-            tempsMissil-=retard;
+        if (!Missils.isEmpty()) {
+            missils.incrementaPos(retard);
+            /*tempsMissil-=retard;*/
+            tempsMissils.set(m, tempsMissils.get(m)-1);
             if (tempsMissil < 0) {
                 missilActiu = false;
             } else {
@@ -295,8 +298,10 @@ public class VistaJoc extends View implements SensorEventListener {
             asteroide.dibuixaGrafic(canvas);
         }
         nau.dibuixaGrafic(canvas);
-        if (missilActiu) {
-            missil.dibuixaGrafic(canvas);
+        if (!Missils.isEmpty()) {
+            for (int i = 0; i < Missils.size(); i++) {
+                Missils.dibuixaGrafic(canvas);
+            }
         }
     }
 

@@ -14,6 +14,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,10 +35,11 @@ public class VistaJoc extends View implements SensorEventListener {
     SensorManager mSensorManager;
 
     // //// MISIL //////
-    private List<Grafic> Missils;
+    private List<Grafic> Missils = new ArrayList<Grafic>();
     private static int PAS_VELOCITAT_MISSIL = 12;
     /*private boolean missilActiu = false;*/
-    private List<Integer> tempsMissils;
+    private List<Integer> tempsMissils = new ArrayList<Integer>();
+    private Drawable drawableMissil;
 
     // //// ASTEROIDES //////
 
@@ -60,9 +63,10 @@ public class VistaJoc extends View implements SensorEventListener {
     private List<Grafic> Asteroides; // Vector amb els Asteroides
     private int numAsteroides= 5; // Número inicial d&#39;asteroides
     private int numFragments = 3; // Fragments en que es divideix
+
     public VistaJoc(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Drawable drawableNave, drawableAsteroide, drawableMissil;
+        Drawable drawableNave, drawableAsteroide;
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
         if (pref.getString("controls", "1").equals("2")) {
             mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
@@ -134,7 +138,7 @@ public class VistaJoc extends View implements SensorEventListener {
             Asteroides.add(asteroide);
         }
         nau = new Grafic(this, drawableNave);
-        missil = new Grafic(this, drawableMissil);
+        //missil = new Grafic(this, drawableMissil);
     }
 
     boolean dispar = false;
@@ -263,20 +267,25 @@ public class VistaJoc extends View implements SensorEventListener {
             asteroide.incrementaPos(retard);
         }
 
-        if (!Missils.isEmpty()) {
-            missils.incrementaPos(retard);
-            /*tempsMissil-=retard;*/
-            tempsMissils.set(m, tempsMissils.get(m)-1);
-            if (tempsMissil < 0) {
-                missilActiu = false;
+        for (int i = 0; i < Missils.size(); i++) {
+            Missils.get(i).incrementaPos(retard);
+            int tempsMissil = tempsMissils.get(i).intValue();
+            tempsMissil -= retard;
+            tempsMissils.set(i, Integer.valueOf(tempsMissil));
+            if (tempsMissils.get(i).intValue() < 0) {
+                Missils.remove(i);
+                tempsMissils.remove(i);
             } else {
-                for (int i = 0; i < Asteroides.size(); i++)
-                if (missil.verificaColisio(Asteroides.get(i))) {
-                    destrueixAsteroide(i);
-                    break;
-                }
+                for (int m = 0; m < Asteroides.size(); m++)
+                    if (Missils.get(i).verificaColisio(Asteroides.get(m))) {
+                        destrueixAsteroide(m);
+                        Missils.remove(i);
+                        tempsMissils.remove(i);
+                        break;
+                    }
             }
         }
+
         
     }
     
@@ -299,9 +308,12 @@ public class VistaJoc extends View implements SensorEventListener {
         }
         nau.dibuixaGrafic(canvas);
         if (!Missils.isEmpty()) {
-            for (int i = 0; i < Missils.size(); i++) {
-                Missils.dibuixaGrafic(canvas);
+            for (Grafic m: Missils) {
+                m.dibuixaGrafic(canvas);
             }
+            /*for (int i = 0; i < Missils.size(); i++) {
+                Missils.get(i).dibuixaGrafic(canvas);
+            }*/
         }
     }
 
@@ -323,21 +335,21 @@ public class VistaJoc extends View implements SensorEventListener {
         girNau=(int) (valorGir-valorInicial)/2 ;
         acceleracioNau=(int) (valorAcc-valorInicial)/3 ;
     }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
     private void destrueixAsteroide(int i) {
-
         Asteroides.remove(i);
-        missilActiu = false;
     }
     private void ActivaMissil() {
+        Grafic missil = new Grafic(this, drawableMissil);
         missil.setPosX(nau.getPosX());
         missil.setPosY(nau.getPosY());
         missil.setAngle(nau.getAngle());
         missil.setIncX(Math.cos(Math.toRadians(missil.getAngle())) * PAS_VELOCITAT_MISSIL);
         missil.setIncY(Math.sin(Math.toRadians(missil.getAngle())) * PAS_VELOCITAT_MISSIL);
-        tempsMissil = (int) Math.min(this.getWidth() / Math.abs(missil.getIncX()), this.getHeight() / Math.abs(missil.getIncY())) - 2;
-        missilActiu = true;
+        tempsMissils.add((int) Math.min(this.getWidth() / Math.abs(missil.getIncX()), this.getHeight() / Math.abs(missil.getIncY())) - 2);
+        Missils.add(missil);
     }
 }

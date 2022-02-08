@@ -232,10 +232,31 @@ public class VistaJoc extends View implements SensorEventListener {
     }
 
     class ThreadJoc extends Thread {
+        private boolean pausa, corrent;
+        public synchronized void pausar() {
+            pausa = true;
+        }
+        public synchronized void reprendre() {
+            pausa = false;
+            notify();
+        }
+        public void detenir() {
+            corrent = false;
+            if (pausa) reprendre();
+        }
         @Override
         public void run() {
-            while (true) {
+            corrent = true;
+            while (corrent) {
                 actualitzaFisica();
+                synchronized (this) {
+                    while (pausa)
+                        try {
+                            wait();
+                        } catch (Exception e) {
+                            // Excepció de l'app
+                        }
+                }
             }
         }
     }
@@ -351,5 +372,9 @@ public class VistaJoc extends View implements SensorEventListener {
         missil.setIncY(Math.sin(Math.toRadians(missil.getAngle())) * PAS_VELOCITAT_MISSIL);
         tempsMissils.add((int) Math.min(this.getWidth() / Math.abs(missil.getIncX()), this.getHeight() / Math.abs(missil.getIncY())) - 2);
         Missils.add(missil);
+    }
+
+    public ThreadJoc getThread() {
+        return thread;
     }
 }

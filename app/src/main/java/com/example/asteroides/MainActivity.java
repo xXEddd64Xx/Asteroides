@@ -6,6 +6,7 @@ import androidx.preference.PreferenceManager;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,10 +19,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    MediaPlayer mp;
+    int pos;
     public static MagatzemPuntuacions magatzem= new MagatzemPuntuacionsList();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mp = MediaPlayer.create(this, R.raw.menumusic);
+        mp.start();
+
         setContentView(R.layout.activity_main);
         /*TextView text = (TextView) findViewById(R.id.titolAsteroides);
         Animation animacio = AnimationUtils.loadAnimation(this,
@@ -47,6 +53,35 @@ public class MainActivity extends AppCompatActivity {
         Animation botoScore = AnimationUtils.loadAnimation(this,
                 R.anim.prova1);
         btnScore.startAnimation(botoScore);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mp.start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mp.seekTo(pos);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pos = mp.getCurrentPosition();
+        mp.pause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

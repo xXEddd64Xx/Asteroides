@@ -19,15 +19,18 @@ public class Joc extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        vistaJoc.desactivarSensors();
         vistaJoc.getThread().pausar();
     }
     @Override
     protected void onResume() {
         super.onResume();
+        vistaJoc.activarSensors();
         vistaJoc.getThread().reprendre();
     }
     @Override
     protected void onDestroy() {
+        vistaJoc.desactivarSensors();
         vistaJoc.getThread().detenir();
         super.onDestroy();
     }

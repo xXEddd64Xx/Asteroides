@@ -75,6 +75,7 @@ public class VistaJoc extends View implements SensorEventListener {
                 Sensor accelerometerSensor = listSensors.get(0);
                 mSensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
             }
+            /*this.activarSensors();*/
         }
 
         if (pref.getString("grafics", "1").equals("0")) {
@@ -376,5 +377,13 @@ public class VistaJoc extends View implements SensorEventListener {
 
     public ThreadJoc getThread() {
         return thread;
+    }
+
+    public void activarSensors() {
+
+    }
+
+    public void desactivarSensors() {
+        /*mSensorManager.unregisterListener(this);*/
     }
 }

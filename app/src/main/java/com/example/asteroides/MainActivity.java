@@ -75,6 +75,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        pos = mp.getCurrentPosition();
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mp.seekTo(pos);
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
     }

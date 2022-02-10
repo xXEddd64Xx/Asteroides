@@ -69,13 +69,7 @@ public class VistaJoc extends View implements SensorEventListener {
         Drawable drawableNave, drawableAsteroide;
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
         if (pref.getString("controls", "1").equals("2")) {
-            mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
-            List<Sensor> listSensors = mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-            if (!listSensors.isEmpty()) {
-                Sensor accelerometerSensor = listSensors.get(0);
-                mSensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
-            }
-            /*this.activarSensors();*/
+            activarSensors(context);
         }
 
         if (pref.getString("grafics", "1").equals("0")) {
@@ -140,6 +134,20 @@ public class VistaJoc extends View implements SensorEventListener {
         }
         nau = new Grafic(this, drawableNave);
         //missil = new Grafic(this, drawableMissil);
+    }
+
+    public void activarSensors(Context context) {
+        mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+        List<Sensor> listSensors = mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+        if (!listSensors.isEmpty()) {
+            Sensor accelerometerSensor = listSensors.get(0);
+            mSensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+
+        }
+    }
+
+    public void desactivarSensors() {
+        mSensorManager.unregisterListener(this);
     }
 
     boolean dispar = false;
@@ -379,11 +387,5 @@ public class VistaJoc extends View implements SensorEventListener {
         return thread;
     }
 
-    public void activarSensors() {
 
-    }
-
-    public void desactivarSensors() {
-        /*mSensorManager.unregisterListener(this);*/
-    }
 }

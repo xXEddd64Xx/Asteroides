@@ -28,6 +28,7 @@
         android:layout_height="60dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="100dp"
+        android:onClick="iniciarPreferencies"
         android:text="@string/configuracion"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -38,6 +39,7 @@
         android:layout_height="60dp"
         android:layout_marginStart="100dp"
         android:layout_marginTop="65dp"
+        android:onClick="iniciarPuntuacions"
         android:text="@string/puntuacions"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button" />
@@ -48,6 +50,7 @@
         android:layout_height="60dp"
         android:layout_marginStart="100dp"
         android:layout_marginTop="40dp"
+        android:onClick="iniciarJoc"
         android:text="@string/jugar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -58,6 +61,7 @@
         android:layout_height="60dp"
         android:layout_marginTop="65dp"
         android:layout_marginEnd="100dp"
+        android:onClick="iniciarSobre"
         android:text="@string/sobre"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button2" />

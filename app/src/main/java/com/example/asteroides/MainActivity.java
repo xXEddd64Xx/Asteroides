@@ -76,18 +76,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        pos = mp.getCurrentPosition();
+        savedInstanceState.putInt("STATE_MUSIC", pos);
         super.onSaveInstanceState(savedInstanceState);
     }
 
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        pos = savedInstanceState.getInt("STATE_MUSIC");
         mp.seekTo(pos);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        pos = mp.getCurrentPosition();
     }
 
     @Override

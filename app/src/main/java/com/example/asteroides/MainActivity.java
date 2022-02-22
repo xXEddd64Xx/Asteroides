@@ -6,7 +6,9 @@ import androidx.preference.PreferenceManager;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mp = MediaPlayer.create(this, R.raw.menumusic);
         mp.start();
-
         setContentView(R.layout.activity_main);
         /*TextView text = (TextView) findViewById(R.id.titolAsteroides);
         Animation animacio = AnimationUtils.loadAnimation(this,

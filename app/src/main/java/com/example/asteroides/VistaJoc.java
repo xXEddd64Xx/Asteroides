@@ -33,6 +33,8 @@ public class VistaJoc extends View implements SensorEventListener {
     private float mX = 0;
     private float mY = 0;
     SensorManager mSensorManager;
+    SoundPool soundPool;
+    int idDispar, idExplosio;
 
     // //// MISIL //////
     private List<Grafic> Missils = new ArrayList<Grafic>();
@@ -66,12 +68,16 @@ public class VistaJoc extends View implements SensorEventListener {
 
     public VistaJoc(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        soundPool = new SoundPool( 10, AudioManager.STREAM_MUSIC , 0);
+        idDispar = soundPool.load(context, R.raw.dispar, 0);
+        idExplosio = soundPool.load(context, R.raw.explosio, 0);
+
         Drawable drawableNave, drawableAsteroide;
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
         if (pref.getString("controls", "1").equals("2")) {
             activarSensors(context);
         }
-
         if (pref.getString("grafics", "1").equals("0")) {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             Path pathAsteroide = new Path();
@@ -370,9 +376,11 @@ public class VistaJoc extends View implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
     private void destrueixAsteroide(int i) {
+        soundPool.play(idExplosio, 1, 1, 0, 0, 0.5f);
         Asteroides.remove(i);
     }
     private void ActivaMissil() {
+        soundPool.play(idDispar, 1, 1, 1, 0, 1);
         Grafic missil = new Grafic(this, drawableMissil);
         missil.setPosX(nau.getPosX());
         missil.setPosY(nau.getPosY());
